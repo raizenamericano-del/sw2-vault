@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+model WhatsAppSession {
+  id String @id @default("primary")
+  phoneNumber String?
+  connectionStatus String @default("disconnected")
+  lastConnectedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model StatusMedia {
+  id String @id @default(cuid())
+  whatsappId String @unique
+  mediaType String
+  contactName String?
+  caption String?
+  mediaPath String
+  thumbnailPath String?
+  mimeType String
+  fileSize Int
+  timestamp DateTime
+  createdAt DateTime @default(now())
+  saved Boolean @default(false)
+  downloads DownloadHistory[]
+  @@index([timestamp])
+  @@index([mediaType, timestamp])
+}
+model DownloadHistory {
+  id String @id @default(cuid())
+  statusMediaId String
+  statusMedia StatusMedia @relation(fields:[statusMediaId], references:[id], onDelete: Cascade)
+  fileName String
+  fileSize Int
+  downloadedAt DateTime @default(now())
+  @@index([downloadedAt])
+}
+model AppSettings {
+  id String @id @default(cuid())
+  key String @unique
+  value String
+  updatedAt DateTime @updatedAt
+}
